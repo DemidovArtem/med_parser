@@ -74,13 +74,13 @@ cat_names = [
 ]
 
 
-def get_services():
+def get_services(site_url: str):
     titles = []
     prices = []
     ids = []
     subcategories = []
     for i, category in enumerate(categories):
-        url = f"https://lab4u.ru/saint_petersburg/store/section/{category}"
+        url = f"{site_url}/{category}"
         response = requests.get(url)
         source = BeautifulSoup(response.text, "lxml")
 
@@ -98,7 +98,7 @@ def get_services():
         prices.extend(cost)
 
         for href in service_hrefs:
-            service_url = f"https://lab4u.ru/saint_petersburg{href}"
+            service_url = f"{site_url}{href}"
             response = requests.get(service_url)
             source = BeautifulSoup(response.text, "lxml")
 
@@ -153,8 +153,7 @@ def get_services():
     # df.to_csv("Анализы.csv")
 
 
-def get_address_source():
-    url = "https://lab4u.ru/medcenters/"
+def get_address_source(url: str):
     # options = webdriver.ChromeOptions()
     # options.add_argument("--headless")
     # options.add_argument("window-size=1400,800")
@@ -186,13 +185,13 @@ def get_address_source():
         driver.quit()
 
 
-def get_addresses():
+def get_addresses(site_url: str):
     city = "Санкт-Петербург"
     phone = "8 800 555-35-90"
     addresses = []
     metro_stations = []
 
-    source = BeautifulSoup(get_address_source(), "lxml")
+    source = BeautifulSoup(get_address_source(site_url), "lxml")
 
     for address in source.find_all("div", {"class": "medcentres__adress"}):
         if (
@@ -253,9 +252,9 @@ async def add_to_db(obj, table_name):
         )
 
 
-async def parse():
-    services = get_services()
-    addresses = get_addresses()
+async def parse(url: str):
+    services = get_services(url)
+    addresses = get_addresses(url)
 
     for service in services:
         await add_to_db(service, 'analyzes')

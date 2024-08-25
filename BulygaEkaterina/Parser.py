@@ -62,8 +62,8 @@ def services_finder(urls):
     return services.copy()
 
 
-def analysis_data():
-    resp = req.get("https://www.labquest.ru/sankt-peterburg/analizy-i-tseny/")
+def analysis_data(url: str):
+    resp = req.get(url)
     soup = BeautifulSoup(resp.text, 'lxml')
     urls = url_finder('a', 'nav-link', soup)
     services = services_finder(urls)
@@ -78,8 +78,8 @@ def analysis_data():
     # df.to_csv('Анализы.csv', encoding='utf8')
 
 
-def address_data():
-    resp = req.get("https://www.labquest.ru/sankt-peterburg/adresa-i-vremya-raboty/")
+def address_data(url: str):
+    resp = req.get(url)
 
     addresses = []
     soup = BeautifulSoup(resp.text, 'lxml')
@@ -122,9 +122,9 @@ async def add_to_db(obj, table_name):
         )
 
 
-async def parse():
-    services = analysis_data()
-    addresses = address_data()
+async def parse(url: str):
+    services = analysis_data(url)
+    addresses = address_data(url)
 
     for service in services:
         await add_to_db(service, 'analyzes')

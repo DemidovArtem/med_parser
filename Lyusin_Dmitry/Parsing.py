@@ -1,7 +1,7 @@
-from bs4 import BeautifulSoup
-import requests as req
-import pandas as pd
 import time
+
+import requests as req
+from bs4 import BeautifulSoup
 from database import db
 
 
@@ -42,8 +42,8 @@ def clear_price(price):
     return price
 
 
-def address_data():
-    resp = req.get("https://www.invitro.ru/offices/piter/")
+def address_data(url: str):
+    resp = req.get(url)
 
     addresses = []
     soup = BeautifulSoup(resp.text, 'lxml')
@@ -66,13 +66,13 @@ def address_data():
     # df.to_csv('Адреса.csv')
 
 
-def analysis_data():
-    resp = req.get("https://www.invitro.ru/analizes/for-doctors/piter/")
+def analysis_data(site_url: str):
+    resp = req.get(site_url)
     urls = []
 
     soup = BeautifulSoup(resp.text, 'lxml')
     for item in soup.find_all('a', 'side-bar-second__link side-bar__link--third'):
-        url = f"https://www.invitro.ru/analizes/for-doctors/piter/{item.get('href')}"
+        url = f"{site_url}/{item.get('href')}"
         urls.append(url)
 
     services = []
@@ -122,9 +122,9 @@ async def add_to_db(obj, table_name):
         )
 
 
-async def parse():
-    services = analysis_data()
-    addresses = address_data()
+async def parse(url: str):
+    services = analysis_data(url)
+    addresses = address_data(url)
 
     for service in services:
         await add_to_db(service, 'analyzes')

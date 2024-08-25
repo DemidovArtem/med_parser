@@ -1,7 +1,7 @@
-from bs4 import BeautifulSoup
-import requests as req
-import pandas as pd
 import time
+
+import requests as req
+from bs4 import BeautifulSoup
 from database import db
 
 
@@ -25,8 +25,8 @@ class Service:
         self.date = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
 
 
-def address_data():
-    resp = req.get("https://spb.klinikabudzdorov.ru/kliniki/klinika-v-sankt-peterburge/", headers={
+def address_data(site_url: str):
+    resp = req.get(site_url, headers={
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 OPR/104.0.0.0"})
     addresses = []
     soup = BeautifulSoup(resp.text, 'lxml')
@@ -45,14 +45,14 @@ def address_data():
     return addresses
 
 
-def analysis_data():
-    resp = req.get("https://spb.klinikabudzdorov.ru/uslugi/analizy/", headers={
+def analysis_data(sit_url: str):
+    resp = req.get(sit_url, headers={
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 OPR/104.0.0.0"})
     urls = []
 
     soup = BeautifulSoup(resp.text, 'lxml')
     for item in soup.find_all('a', "b-analysis-types__item"):
-        url = f"https://spb.klinikabudzdorov.ru{item.get('href')}"
+        url = f"{sit_url}{item.get('href')}"
         urls.append(url)
     services = []
     for url in urls:
@@ -102,9 +102,9 @@ async def add_to_db(obj, table_name):
         )
 
 
-async def parse():
-    services = analysis_data()
-    addresses = address_data()
+async def parse(url: str):
+    services = analysis_data(url)
+    addresses = address_data(url)
 
     for service in services:
         await add_to_db(service, 'analyzes')
