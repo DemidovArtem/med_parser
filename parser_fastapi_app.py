@@ -1,12 +1,20 @@
 import os
+from typing import Dict
 
 from fastapi import FastAPI
 from fastapi.security import HTTPBearer
-from typing import Dict
+
+from database import db
+
 app = FastAPI(debug=True)
 
 SERVICE_ACCESS_TOKEN = os.environ.get('SERVICE_ACCESS_TOKEN')
 security = HTTPBearer()
+
+
+@app.on_event("startup")
+async def startup_event():
+    await db.initialize()
 
 
 async def get_data_from_module(module, url: str):
@@ -19,16 +27,15 @@ async def get_data_from_module(module, url: str):
 
 async def parse_url(url: str):
     parsed_stat = {'analyzes': 0, 'addresses': 0}
-    return parsed_stat
     from BulygaEkaterina import Parser
     from Lyusin_Dmitry import Parsing
     from ShevchenkoSemyon import parser
-    from TikhonovaMarina import lab4u
+    # from TikhonovaMarina import lab4u
     for module in [
         Parser,
         Parsing,
         parser,
-        lab4u
+        # lab4u
     ]:
         res = await get_data_from_module(module, url)
         for key, value in res.items():

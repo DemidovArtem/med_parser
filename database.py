@@ -1,26 +1,25 @@
-import asyncio
-import os
+# import os
 from typing import Generator, Coroutine, List
 
 import asyncpg
 from pandas import DataFrame
 
-if os.name == 'nt':
-    cnfg = {
-        "user": "postgres",
-        "password": "postgres",
-        "database": "postgres",
-        "host": "localhost",
-        "port": "6543",
-    }
-else:
-    cnfg = {
-        "user": "postgres",
-        "password": "postgres",
-        "database": "postgres",
-        "host": "postgres",
-        "port": "5432",
-    }
+# if os.name == 'nt':
+#     cnfg = {
+#         "user": "postgres",
+#         "password": "postgres",
+#         "database": "postgres",
+#         "host": "localhost",
+#         "port": "6543",
+#     }
+# else:
+cnfg = {
+    "user": "postgres",
+    "password": "postgres",
+    "database": "postgres",
+    "host": "db",
+    "port": "5432",
+}
 
 
 class Connection:
@@ -65,10 +64,14 @@ class DataBase:
         ],
     }
 
-    def __init__(self) -> None:
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(self.create_schemes())
-        loop.run_until_complete(self.create_tables())
+    # def __init__(self) -> None:
+    #     loop = asyncio.get_event_loop()
+    #     loop.run_until_complete(self.create_schemes())
+    #     loop.run_until_complete(self.create_tables())
+
+    async def initialize(self):
+        await self.create_schemes()
+        await self.create_tables()
 
     async def _insert(self, table, schema, **kwargs) -> Coroutine:
         async with Connection() as connection:
