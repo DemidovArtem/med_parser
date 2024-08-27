@@ -1,8 +1,10 @@
 beautifulsoup4==4.12.2
-asyncpg==0.26.0
+asyncpg
 bs4==0.0.1
 requests==2.27.1
 asyncio==3.4.3
-pandas==2.0.3
 lxml==4.9.3
 selenium==4.0.0
+fastapi
+uvicorn
+pandas==2.2.2

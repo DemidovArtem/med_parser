@@ -13,7 +13,6 @@ RUN apt-get install -y build-essential
 COPY requirements.txt /code/requirements.txt
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
-
 COPY ./ /code/
 
 # Change directory to the cloned repository

@@ -1,9 +1,9 @@
-import asyncpg
 import asyncio
 import os
-from pandas import DataFrame
+from typing import Generator, Coroutine, List
 
-from typing import Generator, Coroutine, Any, List
+import asyncpg
+from pandas import DataFrame
 
 if os.name == 'nt':
     cnfg = {
@@ -20,7 +20,7 @@ else:
         "database": "postgres",
         "host": "postgres",
         "port": "5432",
-    }    
+    }
 
 
 class Connection:
@@ -41,6 +41,7 @@ class Connection:
             port=cnfg["port"],
             timeout=600
         )
+
 
 class DataBase:
     __tables: List[str] = ["analyzes", "addresses"]
@@ -71,7 +72,7 @@ class DataBase:
 
     async def _insert(self, table, schema, **kwargs) -> Coroutine:
         async with Connection() as connection:
-            f = f"INSERT INTO {schema}.{table} ({', '.join([str(i) for i in kwargs])}) VALUES ({', '.join([f'${index+1}' for index, element in enumerate(kwargs)])});"
+            f = f"INSERT INTO {schema}.{table} ({', '.join([str(i) for i in kwargs])}) VALUES ({', '.join([f'${index + 1}' for index, element in enumerate(kwargs)])});"
             values = [kwargs[key] for key in kwargs]
             return await connection.fetchval(f, *values)
 
@@ -112,7 +113,7 @@ class DataBase:
 
             yield result, schema
 
-        await connection.close()   
+        await connection.close()
 
     async def create_schemes(self) -> None:
         schemes = [i[1] async for i in self.check_schemes() if not i[0]]
